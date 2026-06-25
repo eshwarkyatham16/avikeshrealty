@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+@theme {
+  --font-heading: "Playfair Display", serif;
+  --font-body: "Inter", sans-serif;
+
+  --color-gold-50: #fdf8ef;
+  --color-gold-100: #f9ecd5;
+  --color-gold-200: #f2d7aa;
+  --color-gold-300: #e9bc74;
+  --color-gold-400: #e2a44e;
+  --color-gold-500: #d4882a;
+  --color-gold-600: #c0701f;
+  --color-gold-700: #9f551c;
+  --color-gold-800: #82451e;
+  --color-gold-900: #6b3a1b;
+
+  --color-luxury-50: #f7f7f8;
+  --color-luxury-100: #eeeef0;
+  --color-luxury-200: #d9d9de;
+  --color-luxury-300: #b8b8c1;
+  --color-luxury-400: #92929f;
+  --color-luxury-500: #747484;
+  --color-luxury-600: #5e5e6c;
+  --color-luxury-700: #4d4d58;
+  --color-luxury-800: #42424b;
+  --color-luxury-900: #1a1a2e;
+  --color-luxury-950: #0d0d1a;
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-body);
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  body.dark {
+    background-color: var(--color-luxury-950);
+    color: var(--color-luxury-100);
+  }
+
+  body.light {
+    background-color: #ffffff;
+    color: var(--color-luxury-900);
+  }
+
+  ::selection {
+    background-color: var(--color-gold-400);
+    color: white;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-gold-500);
+    border-radius: 4px;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-light {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, var(--color-gold-300), var(--color-gold-500));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .luxury-shadow {
+    box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  .luxury-glow {
+    box-shadow: 0 0 40px rgba(212, 136, 42, 0.15);
+  }
+}

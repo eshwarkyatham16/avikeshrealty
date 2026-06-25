@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npm init *)",
+      "Bash(npx vite *)",
+      "Bash(npm ls *)",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); const names = Object.keys\\(l\\).filter\\(k => /instagram|facebook|linkedin|youtube|twitter/i.test\\(k\\)\\); console.log\\(names\\);\")",
+      "Bash(node -e \"import\\('lucide-react'\\).then\\(l => { const names = Object.keys\\(l\\).filter\\(k => /instagram|facebook|linkedin|youtube|twitter/i.test\\(k\\)\\); console.log\\(names\\); }\\)\")",
+      "Bash(mkdir -p \"/Users/eshwar/Files/Projects/Avikesh Realty/.claude\")",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}
