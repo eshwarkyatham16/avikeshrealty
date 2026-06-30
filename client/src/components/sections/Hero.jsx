@@ -1,11 +1,10 @@
 import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
+import { useSettings } from "../../hooks/useSettings";
+import { getWhatsAppLink } from "../../utils/whatsapp";
 import MagneticButton from "../ui/MagneticButton";
-
-const HERO_BG =
-  "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80";
 
 const PARTICLE_COUNT = 35;
 
@@ -111,8 +110,11 @@ function ParticleField({ particles }) {
 
 export default function Hero() {
   const { isDark } = useTheme();
+  const { settings } = useSettings();
   const containerRef = useRef(null);
   const [imageLoaded, setImageLoaded] = useState(false);
+
+  const heroBg = settings.hero.backgroundImage;
 
   const particles = useMemo(() => generateParticles(PARTICLE_COUNT), []);
 
@@ -148,13 +150,14 @@ export default function Hero() {
   const contentOpacity = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
 
   useEffect(() => {
+    setImageLoaded(false);
     const img = new Image();
-    img.src = HERO_BG;
+    img.src = heroBg;
     img.onload = () => setImageLoaded(true);
-  }, []);
+  }, [heroBg]);
 
-  const line1Words = ["Where", "Luxury", "Meets"];
-  const line2Words = ["Opportunity"];
+  const line1Words = settings.hero.headlineLine1.split(" ");
+  const line2Words = settings.hero.headlineLine2.split(" ");
 
   return (
     <section
@@ -168,7 +171,7 @@ export default function Hero() {
         style={{ x: bgX, y: bgY, scale: bgScale }}
       >
         <motion.img
-          src={HERO_BG}
+          src={heroBg}
           alt="Luxury property exterior"
           className="w-full h-full object-cover"
           initial={{ scale: 1.2, opacity: 0 }}
@@ -257,8 +260,7 @@ export default function Hero() {
           animate="visible"
           className="font-body text-lg sm:text-xl md:text-2xl text-luxury-200/90 max-w-2xl mx-auto mt-6 mb-10 leading-relaxed"
         >
-          Discover premium villas, apartments and investment properties across
-          Hyderabad.
+          {settings.hero.subtitle}
         </motion.p>
 
         {/* CTA Buttons */}
@@ -284,7 +286,12 @@ export default function Hero() {
             custom={1}
           >
             <MagneticButton
-              href="#contact"
+              href={getWhatsAppLink(
+                settings.whatsappNumber,
+                "Hi, I'm interested in learning more about Avikesh Realty properties."
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
               className="px-8 py-4 glass border border-white/20 text-white font-body font-semibold text-base sm:text-lg rounded-full hover:bg-white/10 transition-all duration-300 tracking-wide"
             >
               Contact Advisor

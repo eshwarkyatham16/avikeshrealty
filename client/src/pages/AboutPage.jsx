@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
-import { useTheme } from '../context/ThemeContext'
+import { useTheme } from '../hooks/useTheme'
+import { useSettings } from '../hooks/useSettings'
 import WhyChooseUs from '../components/sections/WhyChooseUs'
 import LuxuryExperience from '../components/sections/LuxuryExperience'
 import Team from '../components/sections/Team'
@@ -10,6 +11,7 @@ import { fadeUp } from '../utils/animations'
 export default function AboutPage() {
   const { theme } = useTheme()
   const isDark = theme === 'dark'
+  const { settings } = useSettings()
 
   return (
     <>
@@ -21,7 +23,7 @@ export default function AboutPage() {
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <AnimatedText
-            text="Our Story"
+            text={settings.about.storyHeading}
             tag="h1"
             className={`text-5xl md:text-7xl font-heading font-bold mb-8 ${isDark ? 'text-luxury-50' : 'text-luxury-900'}`}
           />
@@ -30,11 +32,7 @@ export default function AboutPage() {
             transition={{ delay: 0.3 }}
             className={`text-lg md:text-xl leading-relaxed ${isDark ? 'text-luxury-300' : 'text-luxury-600'}`}
           >
-            For over 15 years, Avikesh Realty has been redefining luxury living in Hyderabad.
-            We don't just sell properties — we craft lifestyles, build legacies, and create
-            investment opportunities that stand the test of time. Our commitment to excellence,
-            transparency, and client satisfaction has made us one of the most trusted names in
-            premium real estate.
+            {settings.about.storyParagraph}
           </motion.p>
         </div>
       </section>
@@ -67,23 +65,12 @@ export default function AboutPage() {
               viewport={{ once: true }}
             >
               <h2 className={`text-3xl md:text-4xl font-heading font-bold mb-6 ${isDark ? 'text-luxury-50' : 'text-luxury-900'}`}>
-                A Legacy of <span className="text-gradient">Excellence</span>
+                {settings.about.legacyHeading}
               </h2>
               <div className={`space-y-4 text-lg leading-relaxed ${isDark ? 'text-luxury-300' : 'text-luxury-600'}`}>
-                <p>
-                  Founded with a vision to transform the real estate landscape in Hyderabad,
-                  Avikesh Realty has grown from a small consultancy to a premium real estate
-                  powerhouse.
-                </p>
-                <p>
-                  Our portfolio spans luxury villas, premium apartments, strategic commercial
-                  spaces, and high-value investment plots — each handpicked for quality,
-                  location, and appreciation potential.
-                </p>
-                <p>
-                  With over ₹2000 Crores in successful transactions and 1000+ satisfied
-                  clients, our track record speaks for itself.
-                </p>
+                {settings.about.legacyParagraphs.map((paragraph, i) => (
+                  <p key={i}>{paragraph}</p>
+                ))}
               </div>
             </motion.div>
           </div>

@@ -1,9 +1,9 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
 import { useScrollAnimation } from "../../hooks/useScrollAnimation";
 import ParallaxImage from "../ui/ParallaxImage";
-import { fadeUp, fadeIn, staggerContainer, slideInLeft, slideInRight } from "../../utils/animations";
+import { fadeUp, staggerContainer } from "../../utils/animations";
 
 const LUXURY_IMAGE =
   "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1920&q=80";

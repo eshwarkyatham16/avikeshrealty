@@ -1,14 +1,13 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import { MapPin, Maximize2, BedDouble, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
 import SectionHeading from "../ui/SectionHeading";
 import { useScrollAnimation } from "../../hooks/useScrollAnimation";
-import { fadeUp, staggerContainer, scaleIn } from "../../utils/animations";
-import properties from "../../data/properties";
+import { fadeUp, staggerContainer } from "../../utils/animations";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -149,19 +148,45 @@ function PropertyCard({ property, index }) {
   );
 }
 
+function SkeletonCard() {
+  const { isDark } = useTheme();
+  return (
+    <div
+      className={`rounded-2xl overflow-hidden h-full animate-pulse ${
+        isDark ? "bg-luxury-800/50" : "bg-luxury-100"
+      }`}
+    >
+      <div className={`h-56 sm:h-64 ${isDark ? "bg-luxury-800" : "bg-luxury-200"}`} />
+      <div className="p-5 sm:p-6 space-y-3">
+        <div className={`h-6 rounded ${isDark ? "bg-luxury-800" : "bg-luxury-200"} w-3/4`} />
+        <div className={`h-4 rounded ${isDark ? "bg-luxury-800" : "bg-luxury-200"} w-1/2`} />
+        <div className={`h-4 rounded ${isDark ? "bg-luxury-800" : "bg-luxury-200"} w-2/3 mt-4`} />
+      </div>
+    </div>
+  );
+}
+
 export default function FeaturedProperties() {
   const { isDark } = useTheme();
   const [activeTab, setActiveTab] = useState("All");
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { ref: sectionRef, controls } = useScrollAnimation();
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
-  const featured = properties.filter((p) => p.featured);
+  useEffect(() => {
+    fetch("/api/properties/featured")
+      .then((r) => r.json())
+      .then((data) => setProperties(Array.isArray(data) ? data : []))
+      .catch(() => setProperties([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   const filtered =
     TAB_MAP[activeTab] === null
-      ? featured
-      : featured.filter((p) => getPropertyType(p) === TAB_MAP[activeTab]);
+      ? properties
+      : properties.filter((p) => getPropertyType(p) === TAB_MAP[activeTab]);
 
   return (
     <section id="properties" className="py-20 md:py-28 relative">
@@ -209,77 +234,95 @@ export default function FeaturedProperties() {
         </motion.div>
 
         {/* Swiper */}
-        <div className="relative">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4 }}
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }, (_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-16">
+            <p
+              className={`text-lg font-body ${
+                isDark ? "text-luxury-400" : "text-luxury-500"
+              }`}
             >
-              <Swiper
-                modules={[Navigation, Pagination, Autoplay]}
-                spaceBetween={24}
-                slidesPerView={1}
-                navigation={{
-                  prevEl: prevRef.current,
-                  nextEl: nextRef.current,
-                }}
-                onBeforeInit={(swiper) => {
-                  if (typeof swiper.params.navigation === "object") {
-                    swiper.params.navigation.prevEl = prevRef.current;
-                    swiper.params.navigation.nextEl = nextRef.current;
-                  }
-                }}
-                pagination={{
-                  clickable: true,
-                  dynamicBullets: true,
-                }}
-                autoplay={{
-                  delay: 5000,
-                  disableOnInteraction: false,
-                  pauseOnMouseEnter: true,
-                }}
-                breakpoints={{
-                  640: { slidesPerView: 2 },
-                  1024: { slidesPerView: 3 },
-                }}
-                className="!pb-14"
+              No featured properties available right now.
+            </p>
+          </div>
+        ) : (
+          <div className="relative">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4 }}
               >
-                {filtered.map((property, index) => (
-                  <SwiperSlide key={property.id} className="!h-auto">
-                    <PropertyCard property={property} index={index} />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </motion.div>
-          </AnimatePresence>
+                <Swiper
+                  modules={[Navigation, Pagination, Autoplay]}
+                  spaceBetween={24}
+                  slidesPerView={1}
+                  navigation={{
+                    prevEl: prevRef.current,
+                    nextEl: nextRef.current,
+                  }}
+                  onBeforeInit={(swiper) => {
+                    if (typeof swiper.params.navigation === "object") {
+                      swiper.params.navigation.prevEl = prevRef.current;
+                      swiper.params.navigation.nextEl = nextRef.current;
+                    }
+                  }}
+                  pagination={{
+                    clickable: true,
+                    dynamicBullets: true,
+                  }}
+                  autoplay={{
+                    delay: 5000,
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: true,
+                  }}
+                  breakpoints={{
+                    640: { slidesPerView: 2 },
+                    1024: { slidesPerView: 3 },
+                  }}
+                  className="!pb-14"
+                >
+                  {filtered.map((property, index) => (
+                    <SwiperSlide key={property._id} className="!h-auto">
+                      <PropertyCard property={property} index={index} />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </motion.div>
+            </AnimatePresence>
 
-          {/* Custom navigation arrows */}
-          <button
-            ref={prevRef}
-            className={`absolute top-1/2 -translate-y-1/2 -left-2 sm:-left-5 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
-              isDark
-                ? "glass text-white hover:bg-white/10"
-                : "glass-light text-luxury-900 hover:bg-white"
-            } luxury-shadow`}
-            aria-label="Previous property"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
-            ref={nextRef}
-            className={`absolute top-1/2 -translate-y-1/2 -right-2 sm:-right-5 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
-              isDark
-                ? "glass text-white hover:bg-white/10"
-                : "glass-light text-luxury-900 hover:bg-white"
-            } luxury-shadow`}
-            aria-label="Next property"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
+            {/* Custom navigation arrows */}
+            <button
+              ref={prevRef}
+              className={`absolute top-1/2 -translate-y-1/2 -left-2 sm:-left-5 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                isDark
+                  ? "glass text-white hover:bg-white/10"
+                  : "glass-light text-luxury-900 hover:bg-white"
+              } luxury-shadow`}
+              aria-label="Previous property"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              ref={nextRef}
+              className={`absolute top-1/2 -translate-y-1/2 -right-2 sm:-right-5 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                isDark
+                  ? "glass text-white hover:bg-white/10"
+                  : "glass-light text-luxury-900 hover:bg-white"
+              } luxury-shadow`}
+              aria-label="Next property"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Swiper pagination color override */}

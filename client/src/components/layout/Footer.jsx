@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { MapPin, Phone, Mail, ArrowUpRight } from "lucide-react";
 import { useScrollAnimation } from "../../hooks/useScrollAnimation";
 import { fadeUp, staggerContainer } from "../../utils/animations";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
+import { useSettings } from "../../hooks/useSettings";
 
 function IconInstagram({ className }) {
   return (
@@ -34,13 +35,6 @@ function IconYoutube({ className }) {
   );
 }
 
-const socialLinks = [
-  { icon: IconInstagram, href: "https://instagram.com/avikeshrealty", label: "Instagram" },
-  { icon: IconFacebook, href: "https://facebook.com/avikeshrealty", label: "Facebook" },
-  { icon: IconLinkedin, href: "https://linkedin.com/company/avikeshrealty", label: "LinkedIn" },
-  { icon: IconYoutube, href: "https://youtube.com/@avikeshrealty", label: "YouTube" },
-];
-
 const quickLinks = [
   { name: "Home", path: "/" },
   { name: "Properties", path: "/properties" },
@@ -58,6 +52,14 @@ const propertyCategories = [
 export default function Footer() {
   const { ref, controls } = useScrollAnimation({ threshold: 0.1 });
   const { isDark } = useTheme();
+  const { settings } = useSettings();
+
+  const socialLinks = [
+    { icon: IconInstagram, href: settings.social.instagram, label: "Instagram" },
+    { icon: IconFacebook, href: settings.social.facebook, label: "Facebook" },
+    { icon: IconLinkedin, href: settings.social.linkedin, label: "LinkedIn" },
+    { icon: IconYoutube, href: settings.social.youtube, label: "YouTube" },
+  ].filter((social) => social.href);
 
   return (
     <footer
@@ -79,9 +81,9 @@ export default function Footer() {
             <Link to="/" className="inline-block mb-6">
               <span className="font-heading text-2xl tracking-[0.15em] font-bold">
                 <span className={isDark ? "text-luxury-100" : "text-luxury-900"}>
-                  AVIKESH
+                  {settings.logo.primaryText}
                 </span>{" "}
-                <span className="text-gold-500">REALTY</span>
+                <span className="text-gold-500">{settings.logo.accentText}</span>
               </span>
             </Link>
             <p
@@ -89,9 +91,7 @@ export default function Footer() {
                 isDark ? "text-luxury-400" : "text-luxury-500"
               }`}
             >
-              Redefining luxury living in Hyderabad. We curate exceptional
-              properties for discerning individuals who demand nothing but the
-              finest.
+              {settings.footer.description}
             </p>
             <div className="flex gap-3">
               {socialLinks.map((social) => (
@@ -185,16 +185,12 @@ export default function Footer() {
                     isDark ? "text-luxury-400" : "text-luxury-500"
                   }`}
                 >
-                  Road No. 36, Jubilee Hills,
-                  <br />
-                  Hyderabad, Telangana 500033,
-                  <br />
-                  India
+                  {settings.contact.address}
                 </span>
               </li>
               <li>
                 <a
-                  href="tel:+919876543210"
+                  href={`tel:${settings.contact.phone.replace(/[^0-9+]/g, "")}`}
                   className={`flex gap-3 text-sm transition-colors duration-300 ${
                     isDark
                       ? "text-luxury-400 hover:text-gold-400"
@@ -202,12 +198,12 @@ export default function Footer() {
                   }`}
                 >
                   <Phone className="w-5 h-5 text-gold-500 flex-shrink-0" />
-                  +91 98765 43210
+                  {settings.contact.phone}
                 </a>
               </li>
               <li>
                 <a
-                  href="mailto:info@avikeshrealty.com"
+                  href={`mailto:${settings.contact.email}`}
                   className={`flex gap-3 text-sm transition-colors duration-300 ${
                     isDark
                       ? "text-luxury-400 hover:text-gold-400"
@@ -215,7 +211,7 @@ export default function Footer() {
                   }`}
                 >
                   <Mail className="w-5 h-5 text-gold-500 flex-shrink-0" />
-                  info@avikeshrealty.com
+                  {settings.contact.email}
                 </a>
               </li>
             </ul>

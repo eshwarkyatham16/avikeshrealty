@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 import {
   Plus,
   Pencil,
@@ -33,10 +33,13 @@ export default function TeamMembers() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  };
+  const headers = useMemo(
+    () => ({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    }),
+    [token]
+  );
 
   const fetchMembers = useCallback(async () => {
     setLoading(true);
@@ -51,7 +54,7 @@ export default function TeamMembers() {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [headers]);
 
   useEffect(() => {
     fetchMembers();
@@ -116,7 +119,7 @@ export default function TeamMembers() {
         const errData = await res.json();
         alert(errData.message || 'Failed to save team member');
       }
-    } catch (err) {
+    } catch {
       alert('Failed to save team member');
     } finally {
       setSaving(false);
@@ -132,7 +135,7 @@ export default function TeamMembers() {
         headers,
       });
       if (res.ok) fetchMembers();
-    } catch (err) {
+    } catch {
       alert('Failed to delete team member');
     }
   };

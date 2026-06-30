@@ -1,12 +1,12 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay, EffectCoverflow } from "swiper/modules";
 import { Star, Quote } from "lucide-react";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
 import SectionHeading from "../ui/SectionHeading";
 import { useScrollAnimation } from "../../hooks/useScrollAnimation";
 import { fadeUp, staggerContainer } from "../../utils/animations";
-import testimonials from "../../data/testimonials";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -56,14 +56,14 @@ function TestimonialCard({ testimonial }) {
           isDark ? "text-luxury-200" : "text-luxury-700"
         }`}
       >
-        &ldquo;{testimonial.content || testimonial.quote}&rdquo;
+        &ldquo;{testimonial.content}&rdquo;
       </blockquote>
 
       {/* Author */}
       <div className="flex items-center gap-4">
         <div className="relative">
           <img
-            src={testimonial.image || testimonial.photo}
+            src={testimonial.image}
             alt={testimonial.name}
             className="w-14 h-14 rounded-full object-cover"
             loading="lazy"
@@ -87,9 +87,48 @@ function TestimonialCard({ testimonial }) {
   );
 }
 
+function TestimonialSkeleton() {
+  const { isDark } = useTheme();
+  return (
+    <div
+      className={`p-8 sm:p-10 rounded-3xl h-full animate-pulse ${
+        isDark ? "glass" : "glass-light"
+      }`}
+    >
+      <div className="flex gap-1 mb-6">
+        {Array.from({ length: 5 }, (_, i) => (
+          <div key={i} className={`w-4 h-4 rounded-full ${isDark ? "bg-luxury-700" : "bg-luxury-300"}`} />
+        ))}
+      </div>
+      <div className="space-y-3 mb-8">
+        <div className={`h-4 rounded ${isDark ? "bg-luxury-700" : "bg-luxury-300"} w-full`} />
+        <div className={`h-4 rounded ${isDark ? "bg-luxury-700" : "bg-luxury-300"} w-5/6`} />
+        <div className={`h-4 rounded ${isDark ? "bg-luxury-700" : "bg-luxury-300"} w-2/3`} />
+      </div>
+      <div className="flex items-center gap-4">
+        <div className={`w-14 h-14 rounded-full ${isDark ? "bg-luxury-700" : "bg-luxury-300"}`} />
+        <div className="space-y-2">
+          <div className={`h-4 rounded ${isDark ? "bg-luxury-700" : "bg-luxury-300"} w-24`} />
+          <div className={`h-3 rounded ${isDark ? "bg-luxury-700" : "bg-luxury-300"} w-16`} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Testimonials() {
   const { isDark } = useTheme();
   const { ref, controls } = useScrollAnimation();
+  const [testimonials, setTestimonials] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/testimonials")
+      .then((r) => r.json())
+      .then((data) => setTestimonials(Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : []))
+      .catch(() => setTestimonials([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <section
@@ -118,49 +157,65 @@ export default function Testimonials() {
           initial="hidden"
           animate={controls}
         >
-          <motion.div variants={fadeUp}>
-            <Swiper
-              modules={[Navigation, Pagination, Autoplay, EffectCoverflow]}
-              spaceBetween={24}
-              slidesPerView={1}
-              effect="coverflow"
-              coverflowEffect={{
-                rotate: 0,
-                stretch: 0,
-                depth: 80,
-                modifier: 1,
-                slideShadows: false,
-              }}
-              pagination={{
-                clickable: true,
-                dynamicBullets: true,
-              }}
-              autoplay={{
-                delay: 6000,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: true,
-              }}
-              loop={true}
-              breakpoints={{
-                640: { slidesPerView: 1 },
-                768: {
-                  slidesPerView: 2,
-                  effect: "slide",
-                },
-                1024: {
-                  slidesPerView: 3,
-                  effect: "slide",
-                },
-              }}
-              className="!pb-14"
-            >
-              {testimonials.map((testimonial) => (
-                <SwiperSlide key={testimonial.id} className="!h-auto">
-                  <TestimonialCard testimonial={testimonial} />
-                </SwiperSlide>
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 3 }, (_, i) => (
+                <TestimonialSkeleton key={i} />
               ))}
-            </Swiper>
-          </motion.div>
+            </div>
+          ) : testimonials.length === 0 ? (
+            <p
+              className={`text-center font-body text-lg ${
+                isDark ? "text-luxury-400" : "text-luxury-500"
+              }`}
+            >
+              No testimonials available yet.
+            </p>
+          ) : (
+            <motion.div variants={fadeUp}>
+              <Swiper
+                modules={[Navigation, Pagination, Autoplay, EffectCoverflow]}
+                spaceBetween={24}
+                slidesPerView={1}
+                effect="coverflow"
+                coverflowEffect={{
+                  rotate: 0,
+                  stretch: 0,
+                  depth: 80,
+                  modifier: 1,
+                  slideShadows: false,
+                }}
+                pagination={{
+                  clickable: true,
+                  dynamicBullets: true,
+                }}
+                autoplay={{
+                  delay: 6000,
+                  disableOnInteraction: false,
+                  pauseOnMouseEnter: true,
+                }}
+                loop={true}
+                breakpoints={{
+                  640: { slidesPerView: 1 },
+                  768: {
+                    slidesPerView: 2,
+                    effect: "slide",
+                  },
+                  1024: {
+                    slidesPerView: 3,
+                    effect: "slide",
+                  },
+                }}
+                className="!pb-14"
+              >
+                {testimonials.map((testimonial) => (
+                  <SwiperSlide key={testimonial._id} className="!h-auto">
+                    <TestimonialCard testimonial={testimonial} />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </motion.div>
+          )}
         </motion.div>
       </div>
 

@@ -8,7 +8,24 @@
       "Bash(node -e \"const l = require\\('lucide-react'\\); const names = Object.keys\\(l\\).filter\\(k => /instagram|facebook|linkedin|youtube|twitter/i.test\\(k\\)\\); console.log\\(names\\);\")",
       "Bash(node -e \"import\\('lucide-react'\\).then\\(l => { const names = Object.keys\\(l\\).filter\\(k => /instagram|facebook|linkedin|youtube|twitter/i.test\\(k\\)\\); console.log\\(names\\); }\\)\")",
       "Bash(mkdir -p \"/Users/eshwar/Files/Projects/Avikesh Realty/.claude\")",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "WebFetch(domain:avikeshrealty.onrender.com)",
+      "Bash(curl -s http://localhost:5050/api/settings)",
+      "Bash(curl -s \"http://localhost:5050/api/properties?limit=2\")",
+      "Bash(curl -s http://localhost:5050/api/properties/featured)",
+      "Bash(curl -s http://localhost:5050/api/properties/royal-palm-villa)",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" http://localhost:5050/api/properties/nonexistent)",
+      "Bash(curl -s -X POST http://localhost:5050/api/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"admin@avikeshrealty.com\",\"password\":\"admin123\"}')",
+      "Bash(pkill -f \"node src/index.js\")",
+      "Bash(node src/utils/seed.js --force)",
+      "Bash(PORT=5050 node src/index.js)",
+      "Bash(echo \"Started with PID $!\")",
+      "Bash(curl -s http://localhost:5000/api/settings)",
+      "Bash(curl -s \"http://localhost:5001/api/properties?limit=2\")",
+      "Bash(curl -s \"http://localhost:5001/api/properties/featured\")",
+      "Bash(curl -s \"http://localhost:5001/api/testimonials\")",
+      "Bash(curl -s \"http://localhost:5001/api/team\")",
+      "Bash(curl -s -X POST http://localhost:5001/api/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"admin@avikeshrealty.com\",\"password\":\"admin123\"}')"
     ]
   }
 }

@@ -12,9 +12,9 @@ const AdminLogin = lazy(() => import('./pages/AdminLogin'))
 const AdminLayout = lazy(() => import('./components/admin/AdminLayout'))
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'))
 const AdminProperties = lazy(() => import('./pages/admin/Properties'))
-const AdminLeads = lazy(() => import('./pages/admin/Leads'))
 const AdminTestimonials = lazy(() => import('./pages/admin/Testimonials'))
 const AdminTeamMembers = lazy(() => import('./pages/admin/TeamMembers'))
+const AdminSettings = lazy(() => import('./pages/admin/Settings'))
 
 export default function App() {
   return (
@@ -31,9 +31,9 @@ export default function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="properties" element={<AdminProperties />} />
-          <Route path="leads" element={<AdminLeads />} />
           <Route path="testimonials" element={<AdminTestimonials />} />
           <Route path="team" element={<AdminTeamMembers />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>
     </Suspense>

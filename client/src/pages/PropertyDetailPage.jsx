@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -7,8 +7,10 @@ import {
   ChevronRight, Share2, Heart, Building, Trees, Car, Dumbbell, Shield,
   Waves, Wifi, Wind, ArrowLeft
 } from 'lucide-react'
-import { useTheme } from '../context/ThemeContext'
-import { properties, formatArea } from '../data/properties'
+import { useTheme } from '../hooks/useTheme'
+import { useSettings } from '../hooks/useSettings'
+import { getWhatsAppLink } from '../utils/whatsapp'
+import { formatArea } from '../data/properties'
 import { fadeUp, fadeIn } from '../utils/animations'
 
 const AMENITY_ICONS = {
@@ -26,13 +28,54 @@ export default function PropertyDetailPage() {
   const { slug } = useParams()
   const { theme } = useTheme()
   const isDark = theme === 'dark'
+  const { settings } = useSettings()
   const [activeImage, setActiveImage] = useState(0)
   const [showGallery, setShowGallery] = useState(false)
   const [liked, setLiked] = useState(false)
+  const [property, setProperty] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
 
-  const property = useMemo(() => properties.find(p => p.slug === slug), [slug])
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setNotFound(false)
+    setProperty(null)
+    setActiveImage(0)
 
-  if (!property) {
+    fetch(`/api/properties/${slug}`)
+      .then(res => {
+        if (res.status === 404) {
+          if (!cancelled) setNotFound(true)
+          return null
+        }
+        if (!res.ok) throw new Error('Failed to fetch property')
+        return res.json()
+      })
+      .then(data => {
+        if (!cancelled && data) setProperty(data)
+      })
+      .catch(() => {
+        if (!cancelled) setNotFound(true)
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [slug])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center pt-24">
+        <div className="w-12 h-12 rounded-full border-2 border-gold-500/30 border-t-gold-500 animate-spin" />
+      </div>
+    )
+  }
+
+  if (notFound || !property) {
     return (
       <div className="min-h-screen flex items-center justify-center pt-24">
         <div className="text-center">
@@ -273,15 +316,23 @@ export default function PropertyDetailPage() {
 
                 <div className="space-y-3">
                   <a
-                    href="https://wa.me/919876543210"
+                    href={getWhatsAppLink(
+                      settings.whatsappNumber,
+                      `Hi, I'm interested in ${property.title} (${property.location}). Could you share more details?`
+                    )}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block w-full py-3.5 px-6 rounded-xl bg-gold-500 text-white text-center font-semibold hover:bg-gold-600 transition-colors"
                   >
                     Schedule a Visit
                   </a>
-                  <Link
-                    to="/contact"
+                  <a
+                    href={getWhatsAppLink(
+                      settings.whatsappNumber,
+                      `Hi, I'm interested in ${property.title} (${property.location}). Could you share more details?`
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className={`block w-full py-3.5 px-6 rounded-xl text-center font-semibold border transition-colors ${
                       isDark
                         ? 'border-luxury-700 text-luxury-200 hover:bg-luxury-800'
@@ -289,7 +340,7 @@ export default function PropertyDetailPage() {
                     }`}
                   >
                     Contact Advisor
-                  </Link>
+                  </a>
                   {property.brochureUrl && (
                     <button className={`flex items-center justify-center gap-2 w-full py-3.5 px-6 rounded-xl text-sm transition-colors ${isDark ? 'text-luxury-400 hover:text-gold-400' : 'text-luxury-500 hover:text-gold-600'}`}>
                       <Download size={16} />

@@ -2,17 +2,11 @@ import { motion } from "framer-motion";
 import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
 import { Shield, TrendingUp, Award } from "lucide-react";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
+import { useSettings } from "../../hooks/useSettings";
 import SectionHeading from "../ui/SectionHeading";
 import { useScrollAnimation } from "../../hooks/useScrollAnimation";
-import { fadeUp, staggerContainer, scaleIn, slideInLeft, slideInRight } from "../../utils/animations";
-
-const stats = [
-  { value: 15, suffix: "+", label: "Years Experience" },
-  { value: 500, suffix: "+", label: "Properties Sold" },
-  { value: 1000, suffix: "+", label: "Happy Clients" },
-  { prefix: "₹", value: 2000, suffix: " Cr+", label: "Investment Portfolio" },
-];
+import { fadeUp, staggerContainer } from "../../utils/animations";
 
 const features = [
   {
@@ -124,8 +118,16 @@ function FeatureCard({ feature, index }) {
 
 export default function WhyChooseUs() {
   const { isDark } = useTheme();
+  const { settings } = useSettings();
   const { ref: statsRef, controls: statsControls } = useScrollAnimation();
   const { ref: featuresRef, controls: featuresControls } = useScrollAnimation();
+
+  const stats = [
+    { value: settings.stats.yearsExperience, suffix: "+", label: "Years Experience" },
+    { value: settings.stats.propertiesSold, suffix: "+", label: "Properties Sold" },
+    { value: settings.stats.happyClients, suffix: "+", label: "Happy Clients" },
+    { prefix: "₹", value: settings.stats.investmentPortfolioCr, suffix: " Cr+", label: "Investment Portfolio" },
+  ];
 
   return (
     <section

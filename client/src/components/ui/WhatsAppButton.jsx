@@ -1,10 +1,14 @@
 import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
+import { useSettings } from "../../hooks/useSettings";
+import { getWhatsAppLink } from "../../utils/whatsapp";
 
 export default function WhatsAppButton() {
+  const { settings } = useSettings();
+
   return (
     <motion.a
-      href="https://wa.me/919876543210"
+      href={getWhatsAppLink(settings.whatsappNumber)}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"

@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import Contact from '../components/sections/Contact'
 import AnimatedText from '../components/ui/AnimatedText'
-import { useTheme } from '../context/ThemeContext'
+import { useTheme } from '../hooks/useTheme'
 
 export default function ContactPage() {
   const { theme } = useTheme()

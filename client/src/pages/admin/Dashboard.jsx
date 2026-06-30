@@ -1,15 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import {
   Building2,
-  Users,
-  UserPlus,
   Star,
   MessageSquareQuote,
-  TrendingUp,
-  Phone,
-  Mail,
-  Clock,
+  UserCircle,
+  ImageIcon,
 } from 'lucide-react';
 
 const API_BASE = '/api';
@@ -17,16 +13,16 @@ const API_BASE = '/api';
 export default function Dashboard() {
   const { token } = useAuth();
   const [stats, setStats] = useState(null);
-  const [recentLeads, setRecentLeads] = useState([]);
+  const [recentProperties, setRecentProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const headers = { Authorization: `Bearer ${token}` };
-        const [statsRes, leadsRes] = await Promise.all([
+        const [statsRes, propertiesRes] = await Promise.all([
           fetch(`${API_BASE}/dashboard/stats`, { headers }),
-          fetch(`${API_BASE}/leads?limit=5&sort=-createdAt`, { headers }),
+          fetch(`${API_BASE}/properties?sort=newest&limit=5`, { headers }),
         ]);
 
         if (statsRes.ok) {
@@ -34,9 +30,9 @@ export default function Dashboard() {
           setStats(statsData.data);
         }
 
-        if (leadsRes.ok) {
-          const leadsData = await leadsRes.json();
-          setRecentLeads(leadsData.data);
+        if (propertiesRes.ok) {
+          const propertiesData = await propertiesRes.json();
+          setRecentProperties(propertiesData.properties || []);
         }
       } catch (err) {
         console.error('Failed to load dashboard data:', err);
@@ -57,21 +53,21 @@ export default function Dashboard() {
           color: 'bg-blue-50 text-blue-600',
         },
         {
-          label: 'Leads Received',
-          value: stats.totalLeads,
-          icon: Users,
-          color: 'bg-green-50 text-green-600',
-        },
-        {
-          label: 'New This Month',
-          value: stats.newLeadsThisMonth,
-          icon: UserPlus,
-          color: 'bg-amber-50 text-amber-600',
-        },
-        {
           label: 'Featured Properties',
           value: stats.featuredProperties,
           icon: Star,
+          color: 'bg-amber-50 text-amber-600',
+        },
+        {
+          label: 'Testimonials',
+          value: stats.totalTestimonials,
+          icon: MessageSquareQuote,
+          color: 'bg-pink-50 text-pink-600',
+        },
+        {
+          label: 'Team Members',
+          value: stats.totalTeamMembers,
+          icon: UserCircle,
           color: 'bg-purple-50 text-purple-600',
         },
       ]
@@ -116,93 +112,64 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Additional stat */}
-      {stats && (
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-pink-50 flex items-center justify-center">
-              <MessageSquareQuote className="w-5 h-5 text-pink-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">
-                Total Testimonials
-              </p>
-              <p className="text-xl font-bold text-gray-900">
-                {stats.totalTestimonials}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Recent leads */}
+      {/* Recently added properties */}
       <div className="bg-white rounded-xl border border-gray-200">
         <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">
-            Recent Leads
+            Recently Added Properties
           </h2>
           <a
-            href="/admin/leads"
+            href="/admin/properties"
             className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
           >
             View all
-            <TrendingUp className="w-4 h-4" />
           </a>
         </div>
 
-        {recentLeads.length === 0 ? (
+        {recentProperties.length === 0 ? (
           <div className="p-8 text-center text-gray-400">
-            No leads yet. They will appear here when customers reach out.
+            No properties yet. Add your first property to get started.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <th className="px-5 py-3">Name</th>
-                  <th className="px-5 py-3">Contact</th>
-                  <th className="px-5 py-3">Budget</th>
-                  <th className="px-5 py-3">Type</th>
+                  <th className="px-5 py-3">Property</th>
+                  <th className="px-5 py-3">Price</th>
+                  <th className="px-5 py-3">Location</th>
                   <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3">Date</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {recentLeads.map((lead) => (
-                  <tr key={lead._id} className="hover:bg-gray-50 transition">
+                {recentProperties.map((property) => (
+                  <tr key={property._id} className="hover:bg-gray-50 transition">
                     <td className="px-5 py-3">
-                      <p className="text-sm font-medium text-gray-900">
-                        {lead.name}
-                      </p>
-                    </td>
-                    <td className="px-5 py-3">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-sm text-gray-600 flex items-center gap-1">
-                          <Phone className="w-3 h-3" />
-                          {lead.phone}
-                        </span>
-                        {lead.email && (
-                          <span className="text-xs text-gray-400 flex items-center gap-1">
-                            <Mail className="w-3 h-3" />
-                            {lead.email}
-                          </span>
-                        )}
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 overflow-hidden">
+                          {property.images && property.images.length > 0 ? (
+                            <img
+                              src={property.images[0]}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <ImageIcon className="w-4 h-4 text-gray-400" />
+                          )}
+                        </div>
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {property.title}
+                        </p>
                       </div>
                     </td>
-                    <td className="px-5 py-3 text-sm text-gray-600">
-                      {lead.budget || '-'}
+                    <td className="px-5 py-3 text-sm font-medium text-gray-900">
+                      {property.price}
                     </td>
                     <td className="px-5 py-3 text-sm text-gray-600">
-                      {lead.propertyType || '-'}
+                      {property.location}
                     </td>
                     <td className="px-5 py-3">
-                      <StatusBadge status={lead.status} />
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className="text-xs text-gray-400 flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {new Date(lead.createdAt).toLocaleDateString()}
-                      </span>
+                      <StatusBadge status={property.status} />
                     </td>
                   </tr>
                 ))}
@@ -217,10 +184,9 @@ export default function Dashboard() {
 
 function StatusBadge({ status }) {
   const styles = {
-    New: 'bg-blue-50 text-blue-700 border-blue-200',
-    Contacted: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-    Qualified: 'bg-green-50 text-green-700 border-green-200',
-    Converted: 'bg-purple-50 text-purple-700 border-purple-200',
+    Available: 'bg-green-50 text-green-700 border-green-200',
+    Sold: 'bg-red-50 text-red-700 border-red-200',
+    Upcoming: 'bg-blue-50 text-blue-700 border-blue-200',
   };
 
   return (

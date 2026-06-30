@@ -6,18 +6,13 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
-const connectDB = require('./config/db');
-
 // Route files
 const propertyRoutes = require('./routes/properties');
-const leadRoutes = require('./routes/leads');
 const testimonialRoutes = require('./routes/testimonials');
 const teamRoutes = require('./routes/team');
 const authRoutes = require('./routes/auth');
+const settingsRoutes = require('./routes/settings');
 const dashboardRoutes = require('./routes/dashboard');
-
-// Connect to database
-connectDB();
 
 const app = express();
 
@@ -54,10 +49,10 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Mount routes
 app.use('/api/properties', propertyRoutes);
-app.use('/api/leads', leadRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/team', teamRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/settings', settingsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // Health check

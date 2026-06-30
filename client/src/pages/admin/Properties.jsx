@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 import {
   Plus,
   Pencil,
@@ -48,10 +48,13 @@ export default function Properties() {
   const [uploadingId, setUploadingId] = useState(null);
   const [page, setPage] = useState(1);
 
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  };
+  const headers = useMemo(
+    () => ({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    }),
+    [token]
+  );
 
   const fetchProperties = useCallback(async () => {
     setLoading(true);
@@ -67,15 +70,19 @@ export default function Properties() {
       const res = await fetch(`${API_BASE}/properties?${params}`, { headers });
       if (res.ok) {
         const data = await res.json();
-        setProperties(data.data);
-        setPagination(data.pagination);
+        setProperties(data.properties);
+        setPagination({
+          page: data.page,
+          pages: data.pages,
+          total: data.total,
+        });
       }
     } catch (err) {
       console.error('Failed to load properties:', err);
     } finally {
       setLoading(false);
     }
-  }, [token, page, search, filterType]);
+  }, [headers, page, search, filterType]);
 
   useEffect(() => {
     fetchProperties();
@@ -141,7 +148,7 @@ export default function Properties() {
         const errData = await res.json();
         alert(errData.message || 'Failed to save property');
       }
-    } catch (err) {
+    } catch {
       alert('Failed to save property');
     } finally {
       setSaving(false);
@@ -157,7 +164,7 @@ export default function Properties() {
         headers,
       });
       if (res.ok) fetchProperties();
-    } catch (err) {
+    } catch {
       alert('Failed to delete property');
     }
   };
@@ -191,7 +198,7 @@ export default function Properties() {
         body: formData,
       });
       if (res.ok) fetchProperties();
-    } catch (err) {
+    } catch {
       alert('Failed to upload images');
     } finally {
       setUploadingId(null);
@@ -576,12 +583,17 @@ export default function Properties() {
                           className="p-1.5 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 cursor-pointer transition"
                           title="Upload images"
                         >
-                          <Upload className="w-4 h-4" />
+                          {uploadingId === property._id ? (
+                            <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <Upload className="w-4 h-4" />
+                          )}
                           <input
                             type="file"
                             multiple
                             accept="image/*"
                             className="hidden"
+                            disabled={uploadingId === property._id}
                             onChange={(e) =>
                               handleImageUpload(property._id, e.target.files)
                             }

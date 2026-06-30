@@ -6,6 +6,8 @@ export default function MagneticButton({
   className = "",
   onClick,
   href,
+  target,
+  rel,
 }) {
   const ref = useRef(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -35,7 +37,7 @@ export default function MagneticButton({
 
   if (href) {
     return (
-      <motion.a href={href} {...motionProps} onClick={onClick}>
+      <motion.a href={href} target={target} rel={rel} {...motionProps} onClick={onClick}>
         {children}
       </motion.a>
     );

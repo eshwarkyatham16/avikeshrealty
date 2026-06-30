@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 import {
   Plus,
   Pencil,
@@ -30,10 +30,13 @@ export default function Testimonials() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  };
+  const headers = useMemo(
+    () => ({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    }),
+    [token]
+  );
 
   const fetchTestimonials = useCallback(async () => {
     setLoading(true);
@@ -48,7 +51,7 @@ export default function Testimonials() {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [headers]);
 
   useEffect(() => {
     fetchTestimonials();
@@ -100,7 +103,7 @@ export default function Testimonials() {
         const errData = await res.json();
         alert(errData.message || 'Failed to save testimonial');
       }
-    } catch (err) {
+    } catch {
       alert('Failed to save testimonial');
     } finally {
       setSaving(false);
@@ -116,7 +119,7 @@ export default function Testimonials() {
         headers,
       });
       if (res.ok) fetchTestimonials();
-    } catch (err) {
+    } catch {
       alert('Failed to delete testimonial');
     }
   };

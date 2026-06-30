@@ -1,9 +1,9 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
 import SectionHeading from "../ui/SectionHeading";
 import { useScrollAnimation } from "../../hooks/useScrollAnimation";
 import { fadeUp, staggerContainer } from "../../utils/animations";
-import team from "../../data/team";
 
 function getTeamPhoto(member) {
   return member.image || member.photo || "";
@@ -97,9 +97,36 @@ function TeamCard({ member, index }) {
   );
 }
 
+function TeamSkeleton() {
+  const { isDark } = useTheme();
+  return (
+    <div
+      className={`rounded-2xl overflow-hidden animate-pulse ${
+        isDark ? "glass" : "glass-light"
+      }`}
+    >
+      <div className={`h-72 sm:h-80 ${isDark ? "bg-luxury-800" : "bg-luxury-200"}`} />
+      <div className="p-5 sm:p-6 space-y-3">
+        <div className={`h-4 rounded ${isDark ? "bg-luxury-800" : "bg-luxury-200"} w-full`} />
+        <div className={`h-4 rounded ${isDark ? "bg-luxury-800" : "bg-luxury-200"} w-2/3`} />
+      </div>
+    </div>
+  );
+}
+
 export default function Team() {
   const { isDark } = useTheme();
   const { ref, controls } = useScrollAnimation();
+  const [team, setTeam] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/team")
+      .then((r) => r.json())
+      .then((data) => setTeam(Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : []))
+      .catch(() => setTeam([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <section className={`py-20 md:py-28 relative ${isDark ? "bg-luxury-950" : "bg-white"}`}>
@@ -130,9 +157,21 @@ export default function Team() {
           animate={controls}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8"
         >
-          {team.map((member, index) => (
-            <TeamCard key={member.id} member={member} index={index} />
-          ))}
+          {loading ? (
+            Array.from({ length: 4 }, (_, i) => <TeamSkeleton key={i} />)
+          ) : team.length === 0 ? (
+            <p
+              className={`col-span-full text-center font-body text-lg ${
+                isDark ? "text-luxury-400" : "text-luxury-500"
+              }`}
+            >
+              Team information coming soon.
+            </p>
+          ) : (
+            team.map((member, index) => (
+              <TeamCard key={member._id} member={member} index={index} />
+            ))
+          )}
         </motion.div>
       </div>
     </section>

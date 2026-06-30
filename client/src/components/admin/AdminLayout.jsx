@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import {
   LayoutDashboard,
   Building2,
-  Users,
   MessageSquareQuote,
   UserCircle,
   LogOut,
@@ -12,14 +11,15 @@ import {
   X,
   ChevronLeft,
   Globe,
+  Settings as SettingsIcon,
 } from 'lucide-react';
 
 const navItems = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/admin/properties', label: 'Properties', icon: Building2 },
-  { to: '/admin/leads', label: 'Leads', icon: Users },
   { to: '/admin/testimonials', label: 'Testimonials', icon: MessageSquareQuote },
   { to: '/admin/team', label: 'Team', icon: UserCircle },
+  { to: '/admin/settings', label: 'Settings', icon: SettingsIcon },
 ];
 
 export default function AdminLayout() {

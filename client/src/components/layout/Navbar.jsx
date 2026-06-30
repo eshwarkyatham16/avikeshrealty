@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon, Menu, X } from "lucide-react";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
+import { useSettings } from "../../hooks/useSettings";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -13,6 +14,7 @@ const navLinks = [
 
 export default function Navbar() {
   const { isDark, toggleTheme } = useTheme();
+  const { settings } = useSettings();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
@@ -62,9 +64,9 @@ export default function Navbar() {
                 whileHover={{ scale: 1.02 }}
               >
                 <span className={isDark ? "text-luxury-100" : "text-luxury-900"}>
-                  AVIKESH
+                  {settings.logo.primaryText}
                 </span>{" "}
-                <span className="text-gold-500">REALTY</span>
+                <span className="text-gold-500">{settings.logo.accentText}</span>
               </motion.span>
             </Link>
 

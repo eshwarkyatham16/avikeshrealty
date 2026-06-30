@@ -1,39 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const Property = require('../models/Property');
-const Lead = require('../models/Lead');
-const Testimonial = require('../models/Testimonial');
+const { readJSON } = require('../utils/fileStore');
 const { protect } = require('../middleware/auth');
 
 // GET /api/dashboard/stats — Dashboard statistics (protected)
-router.get('/stats', protect, async (req, res) => {
+router.get('/stats', protect, (req, res) => {
   try {
-    // Calculate start of current month
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-    const [
-      totalProperties,
-      totalLeads,
-      newLeadsThisMonth,
-      featuredProperties,
-      totalTestimonials,
-    ] = await Promise.all([
-      Property.countDocuments(),
-      Lead.countDocuments(),
-      Lead.countDocuments({ createdAt: { $gte: startOfMonth } }),
-      Property.countDocuments({ featured: true }),
-      Testimonial.countDocuments(),
-    ]);
+    const properties = readJSON('properties.json', []);
+    const testimonials = readJSON('testimonials.json', []);
+    const team = readJSON('team.json', []);
 
     res.json({
       success: true,
       data: {
-        totalProperties,
-        totalLeads,
-        newLeadsThisMonth,
-        featuredProperties,
-        totalTestimonials,
+        totalProperties: properties.length,
+        featuredProperties: properties.filter((p) => p.featured === true).length,
+        totalTestimonials: testimonials.length,
+        totalTeamMembers: team.length,
       },
     });
   } catch (error) {
